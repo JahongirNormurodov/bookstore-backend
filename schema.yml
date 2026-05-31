@@ -1,0 +1,1945 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/books/:
+    get:
+      operationId: v1_books_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookList'
+          description: ''
+  /api/v1/books/{id}/:
+    get:
+      operationId: v1_books_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDetail'
+          description: ''
+  /api/v1/notifications/:
+    get:
+      operationId: v1_notifications_list
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+          description: ''
+    post:
+      operationId: v1_notifications_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/v1/notifications/{id}/:
+    get:
+      operationId: v1_notifications_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    put:
+      operationId: v1_notifications_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    patch:
+      operationId: v1_notifications_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    delete:
+      operationId: v1_notifications_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/notifications/{id}/mark_as_read/:
+    post:
+      operationId: v1_notifications_mark_as_read_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/v1/notifications/mark_all_read/:
+    post:
+      operationId: v1_notifications_mark_all_read_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/v1/rentals/:
+    get:
+      operationId: v1_rentals_list
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rental'
+          description: ''
+    post:
+      operationId: v1_rentals_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RentalCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RentalCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalCreate'
+          description: ''
+  /api/v1/rentals/{id}/:
+    get:
+      operationId: v1_rentals_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+          description: ''
+    put:
+      operationId: v1_rentals_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rental'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rental'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rental'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+          description: ''
+    patch:
+      operationId: v1_rentals_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRental'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRental'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRental'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+          description: ''
+    delete:
+      operationId: v1_rentals_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/rentals/{id}/extend/:
+    post:
+      operationId: v1_rentals_extend_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalExtension'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RentalExtension'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RentalExtension'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalExtension'
+          description: ''
+  /api/v1/rentals/{id}/return_book/:
+    post:
+      operationId: v1_rentals_return_book_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rental'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rental'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rental'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+          description: ''
+  /api/v1/subscriptions/:
+    get:
+      operationId: v1_subscriptions_list
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription'
+          description: ''
+    post:
+      operationId: v1_subscriptions_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+  /api/v1/subscriptions/{id}/:
+    get:
+      operationId: v1_subscriptions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    put:
+      operationId: v1_subscriptions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    patch:
+      operationId: v1_subscriptions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscription'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    delete:
+      operationId: v1_subscriptions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/subscriptions/{id}/cancel/:
+    post:
+      operationId: v1_subscriptions_cancel_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+  /api/v1/subscriptions/plans/:
+    get:
+      operationId: v1_subscriptions_plans_list
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionPlan'
+          description: ''
+    post:
+      operationId: v1_subscriptions_plans_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlan'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlan'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlan'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+          description: ''
+  /api/v1/subscriptions/plans/{id}/:
+    get:
+      operationId: v1_subscriptions_plans_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Obuna tarifi.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+          description: ''
+    put:
+      operationId: v1_subscriptions_plans_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Obuna tarifi.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlan'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlan'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlan'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+          description: ''
+    patch:
+      operationId: v1_subscriptions_plans_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Obuna tarifi.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscriptionPlan'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscriptionPlan'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscriptionPlan'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+          description: ''
+    delete:
+      operationId: v1_subscriptions_plans_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Obuna tarifi.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/users/:
+    get:
+      operationId: v1_users_list
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: v1_users_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/users/{id}/:
+    get:
+      operationId: v1_users_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this User.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: v1_users_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this User.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdate'
+          description: ''
+    patch:
+      operationId: v1_users_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this User.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdate'
+          description: ''
+    delete:
+      operationId: v1_users_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this User.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/users/me/:
+    get:
+      operationId: v1_users_me_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/users/register/:
+    post:
+      operationId: v1_users_register_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+components:
+  schemas:
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Muallif
+          maxLength: 200
+        bio:
+          type: string
+          title: Biografiya
+      required:
+      - id
+      - name
+    BookDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          title: Kitob nomi
+          maxLength: 255
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        isbn:
+          type: string
+          maxLength: 20
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+          readOnly: true
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+          readOnly: true
+        publisher:
+          allOf:
+          - $ref: '#/components/schemas/Publisher'
+          readOnly: true
+        description:
+          type: string
+          title: Tavsif
+        language:
+          type: string
+          readOnly: true
+        page_count:
+          type: string
+          readOnly: true
+        published_year:
+          type: string
+          readOnly: true
+        rental_price_daily:
+          type: string
+          readOnly: true
+        rental_price_weekly:
+          type: string
+          readOnly: true
+        rental_price_monthly:
+          type: string
+          readOnly: true
+        deposit_amount:
+          type: string
+          readOnly: true
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+          title: Muqova
+        preview_pages:
+          type: string
+          readOnly: true
+        available_copies:
+          type: string
+          readOnly: true
+        is_active:
+          type: string
+          readOnly: true
+      required:
+      - authors
+      - available_copies
+      - deposit_amount
+      - genres
+      - id
+      - is_active
+      - isbn
+      - language
+      - page_count
+      - preview_pages
+      - published_year
+      - publisher
+      - rental_price_daily
+      - rental_price_monthly
+      - rental_price_weekly
+      - slug
+      - title
+    BookList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          title: Kitob nomi
+          maxLength: 255
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+          readOnly: true
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+          readOnly: true
+        language:
+          type: string
+          readOnly: true
+        rental_price_daily:
+          type: string
+          readOnly: true
+        deposit_amount:
+          type: string
+          readOnly: true
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+          title: Muqova
+        available_copies:
+          type: string
+          readOnly: true
+      required:
+      - authors
+      - available_copies
+      - deposit_amount
+      - genres
+      - id
+      - language
+      - rental_price_daily
+      - slug
+      - title
+    Genre:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Janr
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        notification_type:
+          allOf:
+          - $ref: '#/components/schemas/NotificationTypeEnum'
+          title: Turi
+        title:
+          type: string
+          title: Sarlavha
+          maxLength: 200
+        message:
+          type: string
+          title: Matn
+        is_read:
+          type: boolean
+          readOnly: true
+          title: O'qilgan
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: O'qilgan vaqt
+        related_rental:
+          type: string
+          format: uuid
+          nullable: true
+          title: Bog'liq ijara
+        related_book:
+          type: string
+          format: uuid
+          nullable: true
+          title: Bog'liq kitob
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - is_read
+      - message
+      - notification_type
+      - read_at
+      - title
+    NotificationTypeEnum:
+      enum:
+      - rental_reminder
+      - overdue
+      - return_success
+      - new_book
+      - queue_available
+      - subscription_expiry
+      type: string
+      description: |-
+        * `rental_reminder` - Ijara eslatmasi
+        * `overdue` - Muddati o'tgan
+        * `return_success` - Kitob qaytarildi
+        * `new_book` - Yangi kitob
+        * `queue_available` - Navbatdagi kitob bo'shadi
+        * `subscription_expiry` - Obuna tugayapti
+    PatchedNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        notification_type:
+          allOf:
+          - $ref: '#/components/schemas/NotificationTypeEnum'
+          title: Turi
+        title:
+          type: string
+          title: Sarlavha
+          maxLength: 200
+        message:
+          type: string
+          title: Matn
+        is_read:
+          type: boolean
+          readOnly: true
+          title: O'qilgan
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: O'qilgan vaqt
+        related_rental:
+          type: string
+          format: uuid
+          nullable: true
+          title: Bog'liq ijara
+        related_book:
+          type: string
+          format: uuid
+          nullable: true
+          title: Bog'liq kitob
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedRental:
+      type: object
+      description: Ijarani ko'rish uchun
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_phone:
+          type: string
+          readOnly: true
+        book:
+          allOf:
+          - $ref: '#/components/schemas/BookList'
+          readOnly: true
+        book_copy:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/RentalStatusEnum'
+        rented_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Ijaraga olingan sana
+        due_date:
+          type: string
+          format: date
+          title: Qaytarish muddati
+        returned_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Qaytarilgan sana
+        rental_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Ijara narxi
+        deposit_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Garov summasi
+        deposit_returned:
+          type: boolean
+          title: Garov qaytarildi
+        deposit_returned_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Garov qaytarilgan sana
+        extended_days:
+          type: integer
+          readOnly: true
+          title: Uzaytirilgan kunlar
+        is_overdue:
+          type: boolean
+          readOnly: true
+        notes:
+          type: string
+          title: Qo'shimcha eslatmalar
+    PatchedSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_phone:
+          type: string
+          readOnly: true
+        plan:
+          type: string
+          format: uuid
+          title: Tarif
+        plan_name:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatusEnum'
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+          title: Boshlanish sanasi
+        end_date:
+          type: string
+          format: date
+          title: Tugash sanasi
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Bekor qilingan sana
+        auto_renew:
+          type: boolean
+          title: Avto yangilanish
+        notes:
+          type: string
+          title: Eslatmalar
+    PatchedSubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Tarif nomi
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        price_monthly:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Oylik narx
+        max_books_per_month:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Oylik kitob limiti
+        max_simultaneous_books:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Bir vaqtda nechta kitob
+        is_unlimited:
+          type: boolean
+          title: Cheksiz
+        description:
+          type: string
+          title: Tavsif
+        is_active:
+          type: boolean
+          title: Faol
+    PatchedUserUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        profile:
+          $ref: '#/components/schemas/Profile'
+    Profile:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        passport_number:
+          type: string
+          nullable: true
+          maxLength: 20
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        address:
+          type: string
+        is_phone_verified:
+          type: boolean
+          readOnly: true
+          title: Phone verified
+        is_passport_verified:
+          type: boolean
+          readOnly: true
+          title: Passport verified
+      required:
+      - is_passport_verified
+      - is_phone_verified
+    Publisher:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nashriyot
+          maxLength: 200
+        country:
+          type: string
+          title: Mamlakat
+          maxLength: 100
+        website:
+          type: string
+          format: uri
+          title: Veb-sayt
+          maxLength: 200
+      required:
+      - id
+      - name
+    Rental:
+      type: object
+      description: Ijarani ko'rish uchun
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_phone:
+          type: string
+          readOnly: true
+        book:
+          allOf:
+          - $ref: '#/components/schemas/BookList'
+          readOnly: true
+        book_copy:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/RentalStatusEnum'
+        rented_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Ijaraga olingan sana
+        due_date:
+          type: string
+          format: date
+          title: Qaytarish muddati
+        returned_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Qaytarilgan sana
+        rental_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Ijara narxi
+        deposit_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Garov summasi
+        deposit_returned:
+          type: boolean
+          title: Garov qaytarildi
+        deposit_returned_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Garov qaytarilgan sana
+        extended_days:
+          type: integer
+          readOnly: true
+          title: Uzaytirilgan kunlar
+        is_overdue:
+          type: boolean
+          readOnly: true
+        notes:
+          type: string
+          title: Qo'shimcha eslatmalar
+      required:
+      - book
+      - book_copy
+      - deposit_amount
+      - deposit_returned_at
+      - due_date
+      - extended_days
+      - id
+      - is_overdue
+      - rental_price
+      - rented_at
+      - returned_at
+      - user_phone
+    RentalCreate:
+      type: object
+      description: Yangi ijara yaratish uchun
+      properties:
+        book_copy:
+          type: string
+          format: uuid
+          title: Kitob nusxasi
+        due_date:
+          type: string
+          format: date
+          title: Qaytarish muddati
+        notes:
+          type: string
+          title: Qo'shimcha eslatmalar
+      required:
+      - book_copy
+      - due_date
+    RentalExtension:
+      type: object
+      description: Ijara muddatini uzaytirish
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        rental:
+          type: string
+          format: uuid
+          title: Ijara
+        extended_by_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Uzaytirilgan kunlar
+        new_due_date:
+          type: string
+          format: date
+          title: Yangi muddat
+        reason:
+          type: string
+          title: Sabab
+      required:
+      - extended_by_days
+      - id
+      - new_due_date
+      - rental
+    RentalStatusEnum:
+      enum:
+      - pending
+      - active
+      - overdue
+      - returned
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Kutilmoqda
+        * `active` - Faol
+        * `overdue` - Muddati o‘tgan
+        * `returned` - Qaytarilgan
+        * `cancelled` - Bekor qilingan
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_phone:
+          type: string
+          readOnly: true
+        plan:
+          type: string
+          format: uuid
+          title: Tarif
+        plan_name:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatusEnum'
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+          title: Boshlanish sanasi
+        end_date:
+          type: string
+          format: date
+          title: Tugash sanasi
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Bekor qilingan sana
+        auto_renew:
+          type: boolean
+          title: Avto yangilanish
+        notes:
+          type: string
+          title: Eslatmalar
+      required:
+      - cancelled_at
+      - end_date
+      - id
+      - plan
+      - plan_name
+      - start_date
+      - status
+      - user_phone
+    SubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Tarif nomi
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        price_monthly:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Oylik narx
+        max_books_per_month:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Oylik kitob limiti
+        max_simultaneous_books:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Bir vaqtda nechta kitob
+        is_unlimited:
+          type: boolean
+          title: Cheksiz
+        description:
+          type: string
+          title: Tavsif
+        is_active:
+          type: boolean
+          title: Faol
+      required:
+      - id
+      - name
+      - price_monthly
+      - slug
+    SubscriptionStatusEnum:
+      enum:
+      - active
+      - expired
+      - cancelled
+      - pending
+      type: string
+      description: |-
+        * `active` - Faol
+        * `expired` - Muddati tugagan
+        * `cancelled` - Bekor qilingan
+        * `pending` - Kutilmoqda
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        phone:
+          type: string
+          maxLength: 15
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/Profile'
+          readOnly: true
+        trust_score:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - is_active
+      - is_staff
+      - phone
+      - profile
+      - trust_score
+      - updated_at
+    UserRegistration:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 15
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+        confirm_password:
+          type: string
+          writeOnly: true
+      required:
+      - confirm_password
+      - email
+      - password
+      - phone
+    UserUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        profile:
+          $ref: '#/components/schemas/Profile'
+      required:
+      - email
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
