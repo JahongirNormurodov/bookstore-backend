@@ -179,7 +179,7 @@ apps/
 ### 1. Repository'ni klonlash
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/JahongirNormurodov/bookstore-backend.git
 cd bookstore-backend
 ```
 
@@ -290,24 +290,80 @@ python manage.py runserver
 
 ## 🔗 API Endpoints
 
-API dokumentatsiyasini ko'rish:
+API hujjatlarini to'liq ko'rish uchun:
 
+```bash
+# Development server
+python manage.py runserver
+
+# API Documentation
+http://localhost:8000/api/docs/       # Swagger UI
+http://localhost:8000/api/redoc/      # ReDoc
+http://localhost:8000/api/schema/     # OpenAPI Schema
 ```
-http://localhost:8000/api/schema/swagger-ui/
-http://localhost:8000/api/schema/redoc/
-```
+
+**To'liq API hujjatlari:** [API_ENDPOINTS.md](./API_ENDPOINTS.md)
+
+### Asosiy endpointlar:
+- `POST /api/v1/users/login/` - Login
+- `POST /api/v1/users/users/register/` - Register
+- `GET /api/v1/books/` - Kitoblar ro'yxati
+- `POST /api/v1/users/wishlist/` - Wishlist ga qo'shish
+- `GET /api/v1/rentals/my_rentals/` - Mening ijaralarim
+- `GET /api/v1/payments/payments/my_payments/` - Mening to'lovlarim
+- `GET /api/v1/queues/queues/my_queue/` - Mening navbatim
+- `GET /api/v1/users/loyalty-points/balance/` - Bonus balans
+- `GET /api/v1/users/trust-scores/current/` - Trust score
 
 ## 📝 Keyingi qadamlar
 
 1. ✅ Barcha modellar yaratildi
 2. ✅ Admin panelda ro'yxatga olindi
-3. ⏳ API viewlar va serializers yozish
-4. ⏳ To'lov tizimini integratsiya qilish (Payme, Click, Uzum)
-5. ⏳ SMS/Email xabarnomalar
-6. ⏳ Telegram bot
-7. ⏳ Celery tasks (eslatmalar, avtomatik jarimalar)
-8. ⏳ Hisobotlar (daromad, statistika)
-9. ⏳ Frontend (React/Vue.js)
+3. ✅ API viewlar va serializers yozildi
+4. ✅ To'liq API dokumentatsiya yaratildi
+5. ✅ Sample data seed command qo'shildi
+6. ⏳ To'lov tizimini integratsiya qilish (Payme, Click, Uzum)
+7. ⏳ SMS/Email xabarnomalar
+8. ⏳ Telegram bot
+9. ⏳ Celery tasks (eslatmalar, avtomatik jarimalar)
+10. ⏳ Hisobotlar (daromad, statistika)
+11. ⏳ Frontend (React/Vue.js)
+
+## 🧪 Test qilish
+
+### Sample ma'lumotlar yaratish
+```bash
+python manage.py seed_books
+```
+
+Bu command quyidagilarni yaratadi:
+- 8 ta janr
+- 5 ta muallif  
+- 4 ta nashriyot
+- 6 ta kitob
+- 20+ kitob nusxalari
+
+### API ni test qilish
+
+1. **Superuser yaratish:**
+```bash
+python manage.py createsuperuser
+```
+
+2. **Login qilish:**
+```bash
+curl -X POST http://localhost:8000/api/v1/users/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"phone": "+998901234567", "password": "your_password"}'
+```
+
+3. **Kitoblarni olish:**
+```bash
+curl -X GET http://localhost:8000/api/v1/books/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+To'liq API hujjatlari uchun: [API_ENDPOINTS.md](./API_ENDPOINTS.md)
 
 ## 📄 Litsenziya
 
