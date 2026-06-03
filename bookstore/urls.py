@@ -23,6 +23,8 @@ urlpatterns = [
     path('api/v1/rentals/',       include('apps.rentals.urls')),
     path('api/v1/subscriptions/', include('apps.subscriptions.urls')),
     path('api/v1/notifications/', include('apps.notifications.urls')),
+    path('api/v1/payments/',      include('apps.payments.urls')),
+    path('api/v1/queues/',        include('apps.queues.urls')),
 ]
 
 # Media va static fayllar (faqat development da)

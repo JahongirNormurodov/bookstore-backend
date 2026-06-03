@@ -336,3 +336,91 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+
+
+
+# Wishlist ViewSet
+class WishlistViewSet(viewsets.ModelViewSet):
+    """User wishlist management"""
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user).select_related('book', 'book__author')
+    
+    def get_serializer_class(self):
+        from .serializers import WishlistSerializer, WishlistCreateSerializer
+        if self.action == 'create':
+            return WishlistCreateSerializer
+        return WishlistSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    @action(detail=False, methods=['delete'])
+    def clear(self, request):
+        """Clear all wishlist items"""
+        count = self.get_queryset().delete()[0]
+        return Response({'message': f'{count} items removed from wishlist'})
+
+
+# Loyalty Points ViewSet
+class LoyaltyPointsViewSet(viewsets.ReadOnlyModelViewSet):
+    """User loyalty points history"""
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        from .models import LoyaltyPoints
+        return LoyaltyPoints.objects.filter(user=self.request.user).order_by('-created_at')
+    
+    def get_serializer_class(self):
+        from .serializers import LoyaltyPointsSerializer
+        return LoyaltyPointsSerializer
+    
+    @action(detail=False, methods=['get'])
+    def balance(self, request):
+        """Get current loyalty points balance"""
+        total = request.user.total_loyalty_points
+        return Response({'balance': total})
+
+
+# Trust Score ViewSet
+class TrustScoreViewSet(viewsets.ReadOnlyModelViewSet):
+    """User trust score history"""
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        from .models import TrustScore
+        if self.request.user.is_staff:
+            return TrustScore.objects.select_related('user', 'changed_by').all()
+        return TrustScore.objects.filter(user=self.request.user).select_related('changed_by')
+    
+    def get_serializer_class(self):
+        from .serializers import TrustScoreSerializer
+        return TrustScoreSerializer
+    
+    @action(detail=False, methods=['get'])
+    def current(self, request):
+        """Get current trust score"""
+        score = request.user.current_trust_score
+        return Response({'trust_score': score})
+
+
+# Search History ViewSet
+class SearchHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """User search history"""
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        from .models import SearchHistory
+        return SearchHistory.objects.filter(user=self.request.user).order_by('-created_at')[:50]
+    
+    def get_serializer_class(self):
+        from .serializers import SearchHistorySerializer
+        return SearchHistorySerializer
+    
+    @action(detail=False, methods=['delete'])
+    def clear(self, request):
+        """Clear search history"""
+        from .models import SearchHistory
+        count = SearchHistory.objects.filter(user=request.user).delete()[0]
+        return Response({'message': f'{count} search history items deleted'})

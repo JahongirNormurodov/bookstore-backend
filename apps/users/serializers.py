@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Profile
+from .models import User, Profile, Wishlist, LoyaltyPoints, TrustScore, SearchHistory
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -147,5 +147,61 @@ class VerifyOTPSerializer(serializers.Serializer):
         attrs['user'] = user
         attrs['otp'] = otp
         return attrs
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    book_title = serializers.CharField(source='book.title', read_only=True)
+    book_cover = serializers.ImageField(source='book.cover_image', read_only=True)
+    book_author = serializers.CharField(source='book.author.name', read_only=True)
+    is_available = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Wishlist
+        fields = [
+            'id', 'book', 'book_title', 'book_cover', 'book_author',
+            'is_available', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+    
+    def get_is_available(self, obj):
+        return obj.book.available_copies > 0
+
+
+class WishlistCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = ['book']
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Wishlist.objects.create(user=user, **validated_data)
+
+
+class LoyaltyPointsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoyaltyPoints
+        fields = [
+            'id', 'points', 'reason', 'description', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+
+class TrustScoreSerializer(serializers.ModelSerializer):
+    changed_by_name = serializers.CharField(source='changed_by.get_full_name', read_only=True, allow_null=True)
+    
+    class Meta:
+        model = TrustScore
+        fields = [
+            'id', 'score', 'reason', 'comment', 
+            'changed_by', 'changed_by_name', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+
+class SearchHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SearchHistory
+        fields = ['id', 'query', 'results_count', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 
