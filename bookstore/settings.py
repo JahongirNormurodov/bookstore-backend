@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     'apps.rentals',
     'apps.subscriptions',
     'apps.notifications',
+    'apps.payments',
+    'apps.queues',
+    'apps.couriers',
+    'apps.admin_panel',
     'apps.common',
 ]
 

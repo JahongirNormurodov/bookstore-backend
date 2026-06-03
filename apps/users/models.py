@@ -32,18 +32,133 @@ class User(AbstractUser, TimeStampedModel):
         active_sub = self.subscriptions.filter(status='active').first()
         return active_sub.plan if active_sub else None
 
+    @property
+    def total_loyalty_points(self):
+        """Foydalanuvchining umumiy balllari"""
+        from django.db.models import Sum
+        total = self.loyalty_points.aggregate(total=Sum('points'))['total']
+        return total or 0
+
+    @property
+    def active_rentals_count(self):
+        """Faol ijaralar soni"""
+        return self.rentals.filter(status='active').count()
+
+    @property
+    def can_rent_more_books(self):
+        """Yana kitob olish mumkinmi"""
+        if self.active_plan:
+            return self.active_rentals_count < self.active_plan.max_simultaneous_books
+        # Obunasiz foydalanuvchilar uchun standart limit
+        return self.active_rentals_count < 3
+
 
 class Profile(TimeStampedModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(_("Avatar"), upload_to='avatars/', blank=True, null=True)
     passport_number = models.CharField(_("Passport number"), max_length=20, blank=True, null=True)
+    passport_series = models.CharField(_("Passport series"), max_length=10, blank=True, null=True)
     birth_date = models.DateField(_("Birth date"), null=True, blank=True)
     address = models.TextField(_("Address"), blank=True)
     is_phone_verified = models.BooleanField(_("Phone verified"), default=False)
     is_passport_verified = models.BooleanField(_("Passport verified"), default=False)
+    is_blacklisted = models.BooleanField(_("Blacklisted"), default=False)
+    blacklist_reason = models.TextField(_("Blacklist reason"), blank=True)
 
     def __str__(self):
         return f"Profile of {self.user.phone}"
+    
+    @property
+    def is_verified(self):
+        """Foydalanuvchi to'liq tasdiqlangan"""
+        return self.is_phone_verified and self.is_passport_verified
+
+
+class Wishlist(TimeStampedModel):
+    """Sevimli kitoblar ro'yxati"""
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlists')
+    book = models.ForeignKey('books.Book', on_delete=models.CASCADE, related_name='wishlisted_by')
+    
+    class Meta:
+        verbose_name = _("Wishlist")
+        verbose_name_plural = _("Wishlists")
+        unique_together = ['user', 'book']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.phone} - {self.book.title}"
+
+
+class SearchHistory(TimeStampedModel):
+    """Qidiruv tarixi"""
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='search_history')
+    query = models.CharField(_("Search query"), max_length=255)
+    results_count = models.PositiveIntegerField(_("Results count"), default=0)
+    
+    class Meta:
+        verbose_name = _("Search history")
+        verbose_name_plural = _("Search histories")
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.phone} - {self.query}"
+
+
+class ReferralCode(TimeStampedModel):
+    """Referral dasturi"""
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='referral_code')
+    code = models.CharField(_("Referral code"), max_length=20, unique=True)
+    uses_count = models.PositiveIntegerField(_("Uses count"), default=0)
+    
+    class Meta:
+        verbose_name = _("Referral code")
+        verbose_name_plural = _("Referral codes")
+    
+    def __str__(self):
+        return f"{self.user.phone} - {self.code}"
+
+
+class Referral(TimeStampedModel):
+    """Referrallar tarixi"""
+    
+    referrer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='referrals_made')
+    referred = models.OneToOneField(User, on_delete=models.CASCADE, related_name='referred_by')
+    reward_given = models.BooleanField(_("Reward given"), default=False)
+    
+    class Meta:
+        verbose_name = _("Referral")
+        verbose_name_plural = _("Referrals")
+    
+    def __str__(self):
+        return f"{self.referrer.phone} -> {self.referred.phone}"
+
+
+class LoyaltyPoints(TimeStampedModel):
+    """Bonus ballar va cashback"""
+    
+    class Reason(models.TextChoices):
+        RENTAL_CASHBACK = 'rental_cashback', _("Ijara cashback")
+        REFERRAL_BONUS = 'referral_bonus', _("Referral bonus")
+        BIRTHDAY_BONUS = 'birthday_bonus', _("Tug'ilgan kun bonusi")
+        SPENT = 'spent', _("Ishlatildi")
+        ADMIN_ADJUSTMENT = 'admin_adjustment', _("Admin tomonidan")
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='loyalty_points')
+    points = models.IntegerField(_("Points"), help_text=_("Positive = earned, negative = spent"))
+    reason = models.CharField(_("Reason"), max_length=30, choices=Reason.choices)
+    description = models.TextField(_("Description"), blank=True)
+    
+    class Meta:
+        verbose_name = _("Loyalty points")
+        verbose_name_plural = _("Loyalty points")
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        sign = '+' if self.points > 0 else ''
+        return f"{self.user.phone} | {sign}{self.points} | {self.get_reason_display()}"
 
 
 class TrustScore(TimeStampedModel):

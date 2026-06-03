@@ -55,14 +55,38 @@ class Book(TimeStampedModel):
     price = models.DecimalField(_("Narxi"), max_digits=10, decimal_places=2)
     stock_quantity = models.PositiveIntegerField(_("Zaxiradagi soni"), default=0)
     cover_image = models.ImageField(_("Muqova"), upload_to='books/', blank=True, null=True)
-    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)
-    author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True)
-    publisher = models.ForeignKey(Publisher, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Additional images for book details
+    image_2 = models.ImageField(_("Rasm 2"), upload_to='books/', blank=True, null=True)
+    image_3 = models.ImageField(_("Rasm 3"), upload_to='books/', blank=True, null=True)
+    image_4 = models.ImageField(_("Rasm 4"), upload_to='books/', blank=True, null=True)
+    
+    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True, related_name='books')
+    author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True, related_name='books')
+    publisher = models.ForeignKey(Publisher, on_delete=models.SET_NULL, null=True, blank=True, related_name='books')
+    
+    # Book details
+    language = models.CharField(_("Til"), max_length=50, default='uz')
+    page_count = models.PositiveIntegerField(_("Sahifalar soni"), default=0)
+    rating = models.DecimalField(_("Reyting"), max_digits=3, decimal_places=2, default=0.0)
+    reviews_count = models.PositiveIntegerField(_("Sharhlar soni"), default=0)
+    
+    # Preview
+    preview_pages = models.TextField(_("Preview sahifalar"), blank=True, help_text=_("Bir necha sahifa matni"))
+    
+    # Rental settings
+    is_active = models.BooleanField(_("Faol"), default=True)
+    max_rental_days = models.PositiveIntegerField(_("Maksimal ijara muddati (kun)"), default=60)
 
     class Meta:
         verbose_name = _("Kitob")
         verbose_name_plural = _("Kitoblar")
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['slug']),
+            models.Index(fields=['isbn']),
+            models.Index(fields=['is_active', 'rating']),
+        ]
 
     def __str__(self):
         return self.title
@@ -82,14 +106,6 @@ class Book(TimeStampedModel):
     @property
     def genres(self):
         return [self.genre] if self.genre else []
-
-    @property
-    def language(self):
-        return 'uz'
-
-    @property
-    def page_count(self):
-        return 250
 
     @property
     def published_year(self):
@@ -113,14 +129,31 @@ class Book(TimeStampedModel):
     @property
     def deposit_amount(self):
         return self.price
-
+    
     @property
-    def is_active(self):
-        return True
-
+    def next_available_date(self):
+        """Keyingi nusxa qachon bo'shashi"""
+        from django.utils import timezone
+        active_rentals = self.copies.filter(rentals__status='active').values_list('rentals__due_date', flat=True)
+        if active_rentals:
+            return min(active_rentals)
+        return timezone.now().date()
+    
     @property
-    def preview_pages(self):
-        return ""
+    def queue_count(self):
+        """Navbatdagi odamlar soni"""
+        return self.queues.filter(status='waiting').count()
+    
+    def update_rating(self):
+        """Kitob reytingini yangilash"""
+        from django.db.models import Avg, Count
+        stats = self.reviews.filter(is_approved=True).aggregate(
+            avg_rating=Avg('rating'),
+            count=Count('id')
+        )
+        self.rating = stats['avg_rating'] or 0.0
+        self.reviews_count = stats['count'] or 0
+        self.save(update_fields=['rating', 'reviews_count'])
 
 
 class BookCopy(TimeStampedModel):
@@ -161,6 +194,8 @@ class BookCopy(TimeStampedModel):
         blank=True,         # filial yoki ombor
     )
     notes = models.TextField(_("Izoh"), blank=True)
+    barcode = models.CharField(_("Barcode/QR kod"), max_length=100, blank=True, unique=True)
+    rental_count = models.PositiveIntegerField(_("Necha marta ijaraga berilgan"), default=0)
 
     class Meta:
         verbose_name = _("Kitob nusxasi")
@@ -177,4 +212,64 @@ class BookCopy(TimeStampedModel):
             self.status not in (self.Status.LOST, self.Status.POOR)
             and not self.rentals.filter(status='active').exists()
         )
+
+
+class BookReview(TimeStampedModel):
+    """Kitob sharhlari va reytinglari"""
+    
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name=_("Kitob")
+    )
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='book_reviews',
+        verbose_name=_("Foydalanuvchi")
+    )
+    rating = models.PositiveSmallIntegerField(_("Reyting"), help_text=_("1-5"))
+    review_text = models.TextField(_("Sharh"), blank=True)
+    is_approved = models.BooleanField(_("Tasdiqlangan"), default=False)
+    
+    class Meta:
+        verbose_name = _("Kitob sharhi")
+        verbose_name_plural = _("Kitob sharhlari")
+        ordering = ['-created_at']
+        unique_together = ['book', 'user']
+    
+    def __str__(self):
+        return f"{self.user.phone} - {self.book.title} ({self.rating}/5)"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Update book rating
+        self.book.update_rating()
+
+
+class SimilarBook(TimeStampedModel):
+    """O'xshash kitoblar"""
+    
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name='similar_books',
+        verbose_name=_("Kitob")
+    )
+    similar_to = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name='similar_from',
+        verbose_name=_("O'xshash kitob")
+    )
+    similarity_score = models.DecimalField(_("O'xshashlik darajasi"), max_digits=3, decimal_places=2, default=0.0)
+    
+    class Meta:
+        verbose_name = _("O'xshash kitob")
+        verbose_name_plural = _("O'xshash kitoblar")
+        unique_together = ['book', 'similar_to']
+    
+    def __str__(self):
+        return f"{self.book.title} ~ {self.similar_to.title}"
     
