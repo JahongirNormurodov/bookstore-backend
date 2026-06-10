@@ -1,8 +1,36 @@
 import uuid
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.common.models import TimeStampedModel
+
+
+class UserManager(BaseUserManager):
+    """phone ni USERNAME_FIELD sifatida ishlatadigan manager."""
+    use_in_migrations = True
+
+    def _create_user(self, phone, email, password, **extra_fields):
+        if not phone:
+            raise ValueError("Telefon raqami majburiy.")
+        email = self.normalize_email(email) if email else email
+        user = self.model(phone=phone, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, phone, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(phone, email, password, **extra_fields)
+
+    def create_superuser(self, phone, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError("Superuser uchun is_staff=True bo'lishi kerak.")
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError("Superuser uchun is_superuser=True bo'lishi kerak.")
+        return self._create_user(phone, email, password, **extra_fields)
 
 
 class User(AbstractUser, TimeStampedModel):
@@ -14,6 +42,8 @@ class User(AbstractUser, TimeStampedModel):
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+
+    objects = UserManager()
 
     class Meta:
         verbose_name = _("User")
@@ -196,7 +226,6 @@ class TrustScore(TimeStampedModel):
         return f"{self.user.phone} | {sign}{self.score} | {self.get_reason_display()}"
 
 
-# users/models.py
 class OTPCode(TimeStampedModel):
     """SMS tasdiqlash kodlari"""
 

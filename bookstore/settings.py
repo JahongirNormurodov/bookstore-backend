@@ -17,9 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
 
 
 # Application definition
@@ -140,7 +140,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True  # Development uchun
+# CORS: development da hammaga ruxsat, productionda faqat env dagi originlar
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = [
+    o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', '').split(',') if o.strip()
+]
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -176,10 +180,12 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',  # ← login/register uchun shart
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon':     '100/day',
-        'user':     '1000/day',
-        'login':    '5/minute',
-        'register': '3/hour',
+        'anon':       '100/day',
+        'user':       '1000/day',
+        'login':      '5/minute',
+        'register':   '3/hour',
+        'send_otp':   '5/hour',
+        'verify_otp': '10/hour',
     },
 }
 
@@ -194,10 +200,6 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': True,                         # ← user oxirgi login vaqti
 }
 
-DEFAULT_THROTTLE_RATES = {
-    'anon':     '100/day',
-    'user':     '1000/day',
-    'login':    '5/minute',
-    'register': '3/hour',
-    'send_otp': '5/hour',    # ← qo'shish
-}
+# ================== ESKIZ SMS ==================
+ESKIZ_TOKEN  = os.getenv('ESKIZ_TOKEN', '')
+ESKIZ_SENDER = os.getenv('ESKIZ_SENDER', '4546')

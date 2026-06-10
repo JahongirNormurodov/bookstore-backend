@@ -13,6 +13,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if getattr(self, 'swagger_fake_view', False) or not user.is_authenticated:
+            return Notification.objects.none()
         if user.is_staff:
             return Notification.objects.all().select_related(
                 'user', 'related_rental', 'related_book'

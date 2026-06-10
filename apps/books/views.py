@@ -29,7 +29,11 @@ class BookViewSet(viewsets.ReadOnlyModelViewSet):
             .prefetch_related(
                 Prefetch(
                     'copies',
-                    queryset=BookCopy.objects.exclude(status__in=['lost', 'poor']).exclude(rentals__status='active'),
+                    queryset=BookCopy.objects.exclude(
+                        status__in=['lost', 'poor']
+                    ).exclude(
+                        rentals__status__in=['pending', 'active', 'overdue']
+                    ),
                     to_attr='available_copies_list'             # N+1 fix
                 )
             )
@@ -62,8 +66,7 @@ class BookCopyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return (
             BookCopy.objects
-            .select_related('book__publisher')
-            .prefetch_related('book__authors')
+            .select_related('book__publisher', 'book__author')
             .filter(book__is_active=True)
         )
 

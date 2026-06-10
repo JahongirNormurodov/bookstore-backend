@@ -101,7 +101,11 @@ class Book(TimeStampedModel):
 
     @property
     def available_copies(self):
-        return self.copies.exclude(status__in=['lost', 'poor']).exclude(rentals__status='active').count()
+        return self.copies.exclude(
+            status__in=['lost', 'poor']
+        ).exclude(
+            rentals__status__in=['pending', 'active', 'overdue']
+        ).count()
 
     @property
     def genres(self):
@@ -129,6 +133,23 @@ class Book(TimeStampedModel):
     @property
     def deposit_amount(self):
         return self.price
+
+    def calculate_rental_price(self, days):
+        """Ijara kunlari soniga qarab narxni hisoblaydi (oylik/haftalik/kunlik tariflar bo'yicha)."""
+        from decimal import Decimal
+        days = int(days)
+        if days <= 0:
+            raise ValueError("Ijara muddati kamida 1 kun bo'lishi kerak.")
+
+        months, remainder = divmod(days, 30)
+        weeks, rem_days = divmod(remainder, 7)
+
+        total = (
+            self.rental_price_monthly * months
+            + self.rental_price_weekly * weeks
+            + self.rental_price_daily * rem_days
+        )
+        return total.quantize(Decimal('0.01'))
     
     @property
     def next_available_date(self):
@@ -210,7 +231,9 @@ class BookCopy(TimeStampedModel):
         """Nusxa ijarada emasligi va yo'qolmaganligini tekshiradi."""
         return (
             self.status not in (self.Status.LOST, self.Status.POOR)
-            and not self.rentals.filter(status='active').exists()
+            and not self.rentals.filter(
+                status__in=['pending', 'active', 'overdue']
+            ).exists()
         )
 
 

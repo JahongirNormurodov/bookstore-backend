@@ -24,6 +24,8 @@ class BookQueueViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
+        if getattr(self, 'swagger_fake_view', False) or not user.is_authenticated:
+            return BookQueue.objects.none()
         if user.is_staff:
             return BookQueue.objects.select_related('user', 'book').all()
         return BookQueue.objects.filter(user=user).select_related('book')
@@ -70,6 +72,8 @@ class BookNotificationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
+        if getattr(self, 'swagger_fake_view', False) or not user.is_authenticated:
+            return BookNotification.objects.none()
         if user.is_staff:
             return BookNotification.objects.select_related('user', 'book').all()
         return BookNotification.objects.filter(user=user).select_related('book')

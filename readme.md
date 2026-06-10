@@ -6,7 +6,29 @@ Raqamli kutubxona - kitoblarni ijaraga berish tizimi.
 
 Bu loyiha kitoblarni sotish emas, balki **ijaraga berish** xizmatini taqdim etadi. Foydalanuvchilar kitoblarni ma'lum muddat uchun ijaraga olib, garov to'laydilar va muddatida qaytarishlari kerak.
 
-## ✨ Asosiy xususiyatlar
+## 🚦 Loyiha holati (rostgo'y)
+
+Bu hali **production-ready emas**. Hozirgi real holat:
+
+- ✅ **Ma'lumotlar modeli (32 model, 11 app)** — to'liq va barqaror.
+- ✅ **Admin panel** — barcha modellar uchun ishlaydi.
+- ✅ **Autentifikatsiya** — JWT login/logout/refresh, OTP (Eskiz SMS).
+- ✅ **Asosiy ijara oqimi** — ijara olish (narx/garov serverda hisoblanadi),
+  qaytarish, kechikkan kun uchun jarima, garovni qaytarish, uzaytirish.
+- ✅ **To'lov yozuvlari** — server tomonidan hisoblangan summa bilan
+  (haqiqiy to'lov gateway hali ulanmagan — `status` PENDING bo'lib qoladi).
+- ✅ **Testlar** — ijara va to'lov oqimlari uchun smoke/regression testlar.
+- ⏳ **Hali yo'q**: to'lov gateway (Payme/Click/Uzum), SMS/email/Telegram
+  jo'natuvchi background jarayonlar, Celery rejalashtirilgan tasklar
+  (OVERDUE ga o'tkazish, eslatmalar), hisobot API'lari, navbat avtomatikasi.
+
+ Short version: **schema kuchli, API qisman ishlaydi, integratsiyalar yo'q.**
+Hujjatdagi "98% / production-ready" degan eski da'volar olib tashlandi.
+
+## ✨ Rejalashtirilgan xususiyatlar
+
+> Quyidagi belgilar: ✅ = ishlaydi va test qilingan / API mavjud,
+> 🧩 = model darajasida tayyor, lekin to'liq biznes-logika yoki API hali yo'q.
 
 ### 👤 Foydalanuvchi qismi
 
@@ -317,17 +339,24 @@ http://localhost:8000/api/schema/     # OpenAPI Schema
 
 ## 📝 Keyingi qadamlar
 
+Bajarilgan:
 1. ✅ Barcha modellar yaratildi
 2. ✅ Admin panelda ro'yxatga olindi
-3. ✅ API viewlar va serializers yozildi
-4. ✅ To'liq API dokumentatsiya yaratildi
-5. ✅ Sample data seed command qo'shildi
-6. ⏳ To'lov tizimini integratsiya qilish (Payme, Click, Uzum)
-7. ⏳ SMS/Email xabarnomalar
-8. ⏳ Telegram bot
-9. ⏳ Celery tasks (eslatmalar, avtomatik jarimalar)
-10. ⏳ Hisobotlar (daromad, statistika)
-11. ⏳ Frontend (React/Vue.js)
+3. ✅ Asosiy API view va serializerlar (users, books, rentals, payments, queues)
+4. ✅ Ijara oqimi: narx/garov hisobi, jarima, garov qaytarish (test qilingan)
+5. ✅ To'lov yozuvlari xavfsizlashtirildi (server tomonidan summa/foydalanuvchi)
+6. ✅ Sample data seed command
+
+Hali bajarilmagan (muhimlik tartibida):
+7. ⏳ Haqiqiy to'lov gateway integratsiyasi (Payme, Click, Uzum) — hozir
+   `Payment.status` PENDING bo'lib qoladi, pul harakati tasdiqlanmaydi
+8. ⏳ SMS/Email/Telegram jo'natish (Eskiz ulagichi bor, lekin background yo'q)
+9. ⏳ Celery tasklar: OVERDUE ga avtomatik o'tkazish, eslatmalar, navbat xabari
+10. ⏳ Loyalty ballarni sarflash logikasi (hozir faqat balans ko'rsatiladi)
+11. ⏳ Hisobot API'lari (daromad, statistika)
+12. ⏳ Test qamrovini kengaytirish (hozir ijara/to'lov happy-path testlari bor)
+13. ⏳ `bookstore/settings/` ni base/dev/prod ga to'g'ri ajratish
+14. ⏳ Frontend (React/Vue.js)
 
 ## 🧪 Test qilish
 

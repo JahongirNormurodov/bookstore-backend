@@ -74,3 +74,5 @@ def send_verification_sms(phone: str, purpose: str) -> bool:
     )
 
     return send_sms(phone, message)
+
+    return send_sms(phone, message)
